@@ -1,7 +1,14 @@
+### Test Generation
 
-[Useful resource](http://ariya.ofilabs.com/2012/12/javascript-code-coverage-with-istanbul.html) for istanbul.
+Get started.
+
+    git clone https://github.com/CSC-DevOps/TestGeneration.git
+    cd TestGeneration
+    npm install
 
 ### Getting a simple coverage report
+
+[Useful resource](http://ariya.ofilabs.com/2012/12/javascript-code-coverage-with-istanbul.html) for istanbul.
 
 You can run the local version as follows:
 
@@ -23,6 +30,13 @@ Lines        : 100% ( 4/4 )
 ================================================================================
 </pre>
 
+
+### Test Generation with Constraints and Mocking
+
+1) Use the `mock-fs` framework to generate a fake file system to help improve coverage.
+2) Use the `faker` framework to genreate a fake phone number to help improve coverage.
+3) Extend the constraint discovery code to handle `>` and `<`.
+4) Use clues in the code to automate the process of including file system, phone number mocking without manual injection.
 
 ### Test Generation in Java
 
