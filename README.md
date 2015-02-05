@@ -34,9 +34,11 @@ Lines        : 100% ( 4/4 )
 ### Test Generation with Constraints and Mocking
 
 * 1) Use the `mock-fs` framework to generate a fake file system to help improve coverage.
-* 2) Use the `faker` framework to genreate a fake phone number to help improve coverage.
+* 2) Use the `faker` framework to generate a fake phone number to help improve coverage.
 * 3) Extend the constraint discovery code to handle `>` and `<`.
 * 4) Use clues in the code to automate the process of including file system, phone number mocking without manual injection.
+
+[faker.js docs](https://github.com/Marak/faker.js), [mock-fs docs](https://www.npmjs.com/package/mock-fs)
 
 ### Test Generation in Java
 
