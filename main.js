@@ -4,6 +4,7 @@ var faker = require("faker");
 var fs = require("fs");
 faker.locale = "en";
 var mock = require('mock-fs');
+var _ = require('underscore');
 
 function main()
 {
@@ -29,30 +30,29 @@ function fakeDemo()
 	console.log( faker.phone.phoneFormats() );
 }
 
-function fileDemo()
-{
-	mock(
-	{
-		path: 
-		{	
-  			file1: 'text content',
-		}
-	});
-
-
-
-	mock.restore();
-}
-fileDemo();
-
 var functionConstraints =
 {
 }
 
+var mockFileLibrary = 
+{
+	pathExists:
+	{
+		'path/fileExists': {}
+	},
+	fileWithContent:
+	{
+		pathContent: 
+		{	
+  			file1: 'text content',
+		}
+	}
+};
+
 function generateTestCases()
 {
 
-	var content = "var subject = require('./subject.js')\n";
+	var content = "var subject = require('./subject.js')\nvar mock = require('mock-fs');\n";
 	for ( var funcName in functionConstraints )
 	{
 		var params = {};
@@ -65,13 +65,17 @@ function generateTestCases()
 			params[paramName] = '\'\'';
 		}
 
-		console.log( params );
+		//console.log( params );
 
 		// update parameter values based on known constraints.
-		for( var c = 0; c < functionConstraints[funcName].constraints.length; c++ )
-		{
-			var constraint = functionConstraints[funcName].constraints[c];
+		var constraints = functionConstraints[funcName].constraints;
+		// Handle global constraints...
+		var fileWithContent = _.some(constraints, {mocking: 'fileWithContent' });
+		var pathExists      = _.some(constraints, {mocking: 'fileExists' });
 
+		for( var c = 0; c < constraints.length; c++ )
+		{
+			var constraint = constraints[c];
 			if( params.hasOwnProperty( constraint.ident ) )
 			{
 				params[constraint.ident] = constraint.value;
@@ -80,16 +84,50 @@ function generateTestCases()
 
 		// Prepare function arguments.
 		var args = Object.keys(params).map( function(k) {return params[k]; }).join(",");
-
-		// Emit test case.
-		content += "subject.{0}({1});\n".format(funcName, args );
+		if( pathExists || fileWithContent )
+		{
+			content += generateMockFsTestCases(pathExists,fileWithContent,funcName, args);
+			// Bonus...generate constraint variations test cases....
+			content += generateMockFsTestCases(!pathExists,!fileWithContent,funcName, args);
+			content += generateMockFsTestCases(pathExists,!fileWithContent,funcName, args);
+			content += generateMockFsTestCases(!pathExists,fileWithContent,funcName, args);
+		}
+		else
+		{
+			// Emit simple test case.
+			content += "subject.{0}({1});\n".format(funcName, args );
+		}
 
 	}
 
 
-
 	fs.writeFileSync('test.js', content, "utf8");
 
+}
+
+function generateMockFsTestCases (pathExists,fileWithContent,funcName,args) 
+{
+	var testCase = "";
+	// Insert mock data based on constraints.
+	var mergedFS = {};
+	if( pathExists )
+	{
+		for (var attrname in mockFileLibrary.pathExists) { mergedFS[attrname] = mockFileLibrary.pathExists[attrname]; }
+	}
+	if( fileWithContent )
+	{
+		for (var attrname in mockFileLibrary.fileWithContent) { mergedFS[attrname] = mockFileLibrary.fileWithContent[attrname]; }
+	}
+
+	testCase += 
+	"mock(" +
+		JSON.stringify(mergedFS)
+		+
+	");\n";
+
+	testCase += "\tsubject.{0}({1});\n".format(funcName, args );
+	testCase+="mock.restore();\n";
+	return testCase;
 }
 
 function constraints(filePath)
@@ -125,6 +163,45 @@ function constraints(filePath)
 							});
 					}
 				}
+
+				if( child.type == "CallExpression" && 
+					 child.callee.property &&
+					 child.callee.property.name =="readFileSync" )
+				{
+					for( var p =0; p < params.length; p++ )
+					{
+						if( child.arguments[0].name == params[p] )
+						{
+							functionConstraints[funcName].constraints.push( 
+							{
+								// A fake path to a file
+								ident: params[p],
+								value: "'pathContent/file1'",
+								mocking: 'fileWithContent'
+							});
+						}
+					}
+				}
+
+				if( child.type == "CallExpression" &&
+					 child.callee.property &&
+					 child.callee.property.name =="existsSync")
+				{
+					for( var p =0; p < params.length; p++ )
+					{
+						if( child.arguments[0].name == params[p] )
+						{
+							functionConstraints[funcName].constraints.push( 
+							{
+								// A fake path to a file
+								ident: params[p],
+								value: "'path/fileExists'",
+								mocking: 'fileExists'
+							});
+						}
+					}
+				}
+
 			});
 
 			console.log( functionConstraints[funcName]);
