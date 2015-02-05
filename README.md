@@ -19,7 +19,7 @@ To install istanbul globally, saving some keystrokes, you can do the following:
 
     npm install istanbul -G
 
-You'll get a high level report as follows (a more detailed report will be stored in `coverage/`:
+You'll get a high level report as follows (a more detailed report will be stored in `coverage/`):
 <pre>
 =============================== Coverage summary ===============================
 
