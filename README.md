@@ -42,6 +42,10 @@ Run `node main.js` to generate `test.js`.  The code under test is `subject.js`.
 
 [faker.js docs](https://github.com/Marak/faker.js), [mock-fs docs](https://www.npmjs.com/package/mock-fs)
 
+##### You can see a better visualization of the results here:
+    
+    open coverage/lcov-report/TestGeneration/subject.js.html
+
 ### Test Generation in Java
 
 Download randoop:
