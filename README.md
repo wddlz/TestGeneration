@@ -33,6 +33,8 @@ Lines        : 100% ( 4/4 )
 
 ### Test Generation with Constraints and Mocking
 
+Run `node main.js` to generate `test.js`.  The code under test is `subject.js`.
+
 * 1) Use the `mock-fs` framework to generate a fake file system to help improve coverage.
 * 2) Use the `faker` framework to generate a fake phone number to help improve coverage.
 * 3) Extend the constraint discovery code to handle `>` and `<`.
