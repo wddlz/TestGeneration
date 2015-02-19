@@ -13,7 +13,7 @@ Get started.
 You can run the local version as follows:
 
     node_modules/.bin/istanbul cover test.js
-    node_module\.bin\istanbul cover test.js (Windows)
+    node_modules\.bin\istanbul cover test.js (Windows)
 
 To install istanbul globally, saving some keystrokes, you can do the following:
 
@@ -45,6 +45,7 @@ Run `node main.js` to generate `test.js`.  The code under test is `subject.js`.
 ##### You can see a better visualization of the results here:
     
     open coverage/lcov-report/TestGeneration/subject.js.html
+    start coverage/lcov-report/TestGeneration/subject.js.html (Windows)
 
 ### Test Generation in Java
 
