@@ -1,22 +1,54 @@
 var fs = require("fs");
 
 function inc(p, q){
-    if(q ==undefined) q =1;
-
+   if(q ==undefined) q =1;
    if( p < 0 )
    {
    	p = -p;
    }
+   return p + q/q;
+}
 
-    return p + q/q;
+function weird(x,y,z, mode)
+{
+    if( x > 7 && y < 0 )
+    {
+        z = 33;
+    }    
+    else if( z < 42 )
+    {
+        if( mode == "strict" )
+        {
+            return 0;
+        }
+        else if( mode.indexOf("werw") == 0 )
+        {
+            return 1;
+        }
+    }
+    else
+    {
+        if( mode != "strict" )
+        {
+            return y = z / x;
+        }
+    }
+    return 1;
 }
 
 
 function fileTest(dir, filePath)
 {
 	if (!fs.existsSync(dir)){
-   	return false;
-	}
+
+   	    return false;
+    }
+    
+    var files = fs.readdirSync(dir);
+    if( files.length == 0 )
+    {
+        return false;
+    }
 
    if( fs.existsSync(filePath ))
    {
@@ -68,5 +100,6 @@ exports.fileTest = fileTest;
 exports.normalize = normalize;
 exports.format = format;
 exports.inc = inc;
+exports.weird = weird;
 exports.blackListNumber = blackListNumber;
 

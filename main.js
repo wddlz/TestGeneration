@@ -5,6 +5,7 @@ var fs = require("fs");
 faker.locale = "en";
 var mock = require('mock-fs');
 var _ = require('underscore');
+var Random = require('random-js');
 
 function main()
 {
@@ -22,6 +23,24 @@ function main()
 
 }
 
+var engine = Random.engines.mt19937().autoSeed();
+
+function createConcreteIntegerValue( constraint )
+{
+	
+}
+
+function Constraint(properties)
+{
+	this.ident = properties.ident;
+	this.expression = properties.expression;
+	this.operator = properties.operator;
+	this.value = properties.value;
+	this.funcName = properties.funcName;
+	// Supported kinds: "fileWithContent","fileExists"
+	// integer, string, phoneNumber
+	this.kind = properties.kind;
+}
 
 function fakeDemo()
 {
@@ -70,9 +89,10 @@ function generateTestCases()
 		// update parameter values based on known constraints.
 		var constraints = functionConstraints[funcName].constraints;
 		// Handle global constraints...
-		var fileWithContent = _.some(constraints, {mocking: 'fileWithContent' });
-		var pathExists      = _.some(constraints, {mocking: 'fileExists' });
+		var fileWithContent = _.some(constraints, {kind: 'fileWithContent' });
+		var pathExists      = _.some(constraints, {kind: 'fileExists' });
 
+		// plug-in values for parameters
 		for( var c = 0; c < constraints.length; c++ )
 		{
 			var constraint = constraints[c];
@@ -88,9 +108,6 @@ function generateTestCases()
 		{
 			content += generateMockFsTestCases(pathExists,fileWithContent,funcName, args);
 			// Bonus...generate constraint variations test cases....
-			content += generateMockFsTestCases(!pathExists,!fileWithContent,funcName, args);
-			content += generateMockFsTestCases(pathExists,!fileWithContent,funcName, args);
-			content += generateMockFsTestCases(!pathExists,fileWithContent,funcName, args);
 		}
 		else
 		{
@@ -108,7 +125,7 @@ function generateTestCases()
 function generateMockFsTestCases (pathExists,fileWithContent,funcName,args) 
 {
 	var testCase = "";
-	// Insert mock data based on constraints.
+	// Build mock file system based on constraints.
 	var mergedFS = {};
 	if( pathExists )
 	{
@@ -154,13 +171,19 @@ function constraints(filePath)
 					if( child.left.type == 'Identifier' && params.indexOf( child.left.name ) > -1)
 					{
 						// get expression from original source code:
-						//var expression = buf.substring(child.range[0], child.range[1]);
+						var expression = buf.substring(child.range[0], child.range[1]);
 						var rightHand = buf.substring(child.right.range[0], child.right.range[1])
+
 						functionConstraints[funcName].constraints.push( 
+							new Constraint(
 							{
 								ident: child.left.name,
-								value: rightHand
-							});
+								value: rightHand,
+								funcName: funcName,
+								kind: "integer",
+								operator : child.operator,
+								expression: expression
+							}));
 					}
 				}
 
@@ -173,12 +196,15 @@ function constraints(filePath)
 						if( child.arguments[0].name == params[p] )
 						{
 							functionConstraints[funcName].constraints.push( 
+							new Constraint(
 							{
-								// A fake path to a file
 								ident: params[p],
-								value: "'pathContent/file1'",
-								mocking: 'fileWithContent'
-							});
+								value:  "'pathContent/file1'",
+								funcName: funcName,
+								kind: "fileWithContent",
+								operator : child.operator,
+								expression: expression
+							}));
 						}
 					}
 				}
@@ -192,12 +218,16 @@ function constraints(filePath)
 						if( child.arguments[0].name == params[p] )
 						{
 							functionConstraints[funcName].constraints.push( 
+							new Constraint(
 							{
-								// A fake path to a file
 								ident: params[p],
-								value: "'path/fileExists'",
-								mocking: 'fileExists'
-							});
+								// A fake path to a file
+								value:  "'path/fileExists'",
+								funcName: funcName,
+								kind: "fileExists",
+								operator : child.operator,
+								expression: expression
+							}));
 						}
 					}
 				}
