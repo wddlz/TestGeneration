@@ -77,7 +77,7 @@ But notice that p has no concrete value associated with it, instead if just has 
 
 Testing file system code in unit tests can be challenging. One helpful tool is to use mocking.
 
-The `mock-fs` framework can be used to generate a fake file system to help improve coverage.
+The [mock-fs framework](https://github.com/tschaub/mock-fs) can be used to generate a fake file system to help improve coverage.
 
 For example, this is a fake filesystem you can create:
 
