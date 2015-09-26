@@ -111,6 +111,9 @@ function generateTestCases()
 		{
 			content += generateMockFsTestCases(pathExists,fileWithContent,funcName, args);
 			// Bonus...generate constraint variations test cases....
+			content += generateMockFsTestCases(!pathExists,fileWithContent,funcName, args);
+			content += generateMockFsTestCases(pathExists,!fileWithContent,funcName, args);
+			content += generateMockFsTestCases(!pathExists,!fileWithContent,funcName, args);
 		}
 		else
 		{
